@@ -11,6 +11,9 @@ std::vector<TraitInfoBlock> deviceTraits(0);
 
 int getDeviceInformation(String request);
 
+//  variables
+String gData;
+
 /**
  * Constructor.
  */
@@ -92,7 +95,7 @@ int getDeviceInformation(String request)
     int ho2 = traitCount <<16;
 
     //  set the result into gData
-    gData = tBlock.traitInfo;
+    gData = tBlock.traitData;
     return ho1 | ho2 | tBlock.trait;
   }
 

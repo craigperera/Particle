@@ -23,9 +23,6 @@ public:
    */
   GoogleHome(DeviceTypes deviceType);
 
-  //  variables
-  String gData;
-
   /**
    *  Resgister Supported Device Traits
    */
