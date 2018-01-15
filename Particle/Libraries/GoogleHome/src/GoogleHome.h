@@ -5,14 +5,6 @@
 
 // This will load the definition for common Particle variable types
 #include "Particle.h"
-#include "GoogleHomeDefs.h"
-
-typedef struct {
-
-  DeviceTraits trait;
-  String traitData;
-} TraitInfoBlock;
-
 
 // This is your main class that users will import into their application
 class GoogleHome
@@ -21,15 +13,12 @@ public:
   /**
    * Constructor
    */
-  GoogleHome(DeviceTypes deviceType);
-
-  //  variables
-  String gData;
+  GoogleHome();
 
   /**
-   *  Resgister Supported Device Traits
+   * Example method
    */
-  void registerDeviceTrait(DeviceTraits trait, String traitData);
+  void begin();
 
   /**
    * Example method
@@ -37,5 +26,8 @@ public:
   void process();
 
 private:
-
+  /**
+   * Example private method
+   */
+  void doit();
 };

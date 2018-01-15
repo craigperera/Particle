@@ -1,16 +1,21 @@
 // Example usage for GoogleHome library by Craig Perera.
 
-#include "GoogleHome.h"
+/*
+#include "../src/GoogleHome.h"
+#include "../src/GoogleHomeDefs.h"
 
 // Initialize objects from the lib
-GoogleHome googleHome;
+GoogleHome googleHome(Thermostat);
 
 void setup() {
-    // Call functions on initialized library objects that require hardware
-    googleHome.begin();
+
+  //  register device Traits
+  googleHome.registerDeviceTrait(TemperatureSetting, "availableThermostatModes=off,on,heat,cool;thermostatTemperatureUnit=C");
+
 }
 
-void loop() {
+//void loop() {
     // Use the library's initialized objects and functions
-    googleHome.process();
-}
+//    googleHome.process();
+//}
+*/
