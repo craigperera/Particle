@@ -2,14 +2,6 @@
 
 #include <vector>
 
-typedef struct {
-
-    String deviceCommand;
-    String deviceParameter;
-    String parameterValue;
-
-} GoogleCommand;
-
 typedef enum class DeviceType {
   Camera = 1,
   Dishwasher = 2,
@@ -73,8 +65,9 @@ typedef enum class DeviceParameter {
   updateToggleSettings = 14
 } DeviceParameters;
 
-typedef enum class ErrorCode {
+typedef enum class ReturnCode {
 
+    success = 1,
     unknownError = -1,
     authExpired = -2,
     authFailure = -3,
@@ -89,9 +82,20 @@ typedef enum class ErrorCode {
     inHeatOrCool = -200,
     inHeatCool = -201,
     lockedToRange = -202,
-    rangeTooClose = -203
+    rangeTooClose = -203,
+    handleWithMultipleCommands = -999
+} ReturnCodes;
 
-} ErrorCodes;
+typedef struct {
+
+    DeviceCommand deviceCommand;
+    DeviceParameter deviceParameter;
+    String parameterValue;
+
+} GoogleCommand;
 
 //  external functions
 extern int execute(std::vector<GoogleCommand>& deviceCommand);
+
+//  external variables
+extern String gData;

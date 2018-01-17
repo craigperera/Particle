@@ -13,10 +13,6 @@ int getDeviceInformation(String request);
 int executeCommand(String command);
 int translateIncomingCommand();
 
-String getDeviceCommandName(int commandInteger);
-String getParameterName(int parameterInteger);
-
-
 //  variables
 String gData;
 String incomingData = "";
@@ -139,10 +135,11 @@ int executeCommand(String command) {
   if (index == 1) {
 
       incomingData = data;
-      return 1;
   }
+  else {
 
-  incomingData = incomingData + data;
+    incomingData = incomingData + data;
+  }
 
   //  more data to come ?
   if (index < total) {
@@ -201,11 +198,11 @@ int translateIncomingCommand() {
 
         //  first is the device command
         char* arg = strtok(buffer2, "^");
-        googleCommand.deviceCommand = getDeviceCommandName(atoi(arg));
+        googleCommand.deviceCommand = (DeviceCommand) atoi(arg);
 
         //  next get the parameter name
         arg = strtok(NULL, "^");
-        googleCommand.deviceParameter = getParameterName(atoi(arg));
+        googleCommand.deviceParameter = (DeviceParameter)atoi(arg);
 
         // finally the command parameter value
         arg = strtok(NULL, "^");
@@ -218,154 +215,4 @@ int translateIncomingCommand() {
 
     //  invoke the actual function and return it's result
     return execute(deviceCommands);
-}
-
-/*
-    Translate the Command Integer into a device command
-*/
-String getDeviceCommandName(int iCommandInteger) {
-
-    if (iCommandInteger <= 0) {
-
-        return "";
-    }
-
-    DeviceCommand commandInteger = (DeviceCommand)iCommandInteger;
-
-    switch(commandInteger) {
-
-        case DeviceCommand::BrightnessAbsolute: {
-
-            return "BrightnessAbsolute";
-        }
-        case DeviceCommand::GetCameraStream: {
-
-            return "GetCameraStream";
-        }
-        case DeviceCommand::ColorAbsolute: {
-
-            return "ColorAbsolute";
-        }
-        case DeviceCommand::Dock: {
-
-            return "Dock";
-        }
-        case DeviceCommand::SetModes: {
-
-            return "SetModes";
-        }
-        case DeviceCommand::OnOff: {
-
-            return "OnOff";
-        }
-        case DeviceCommand::ActivateScene: {
-
-            return "ActivateScene";
-        }
-        case DeviceCommand::StartStop: {
-
-            return "StartStop";
-        }
-        case DeviceCommand::PauseUnpause: {
-
-            return "PauseUnpause";
-        }
-        case DeviceCommand::ThermostatTemperatureSetpoint: {
-
-            return "ThermostatTemperatureSetpoint";
-        }
-        case DeviceCommand::ThermostatTemperatureSetRange: {
-
-            return "ThermostatTemperatureSetRange";
-        }
-        case DeviceCommand::ThermostatSetMode: {
-
-            return "ThermostatSetMode";
-        }
-        case DeviceCommand::SetToggle: {
-
-            return "SetToggle";
-        }
-        default: {
-
-            return "";
-        }
-    }
-}
-
-/*
-    Translate the Paramater Name Integer into a device parameter
-*/
-String getParameterName(int iParameterInteger) {
-
-    if (iParameterInteger <= 0) {
-
-        return "";
-    }
-
-    DeviceParameter parameterInteger = (DeviceParameter)iParameterInteger;
-
-    switch(parameterInteger) {
-
-        case DeviceParameter::brightness: {
-
-            return "brightness";
-        }
-        case DeviceParameter::StreamToChromecast: {
-
-            return "StreamToChromecast";
-        }
-        case DeviceParameter::SupportedStreamProtocols: {
-
-            return "SupportedStreamProtocols";
-        }
-        case DeviceParameter::color: {
-
-            return "color";
-        }
-        case DeviceParameter::updateModeSettings: {
-
-            return "updateModeSettings";
-        }
-        case DeviceParameter::on: {
-
-            return "on";
-        }
-        case DeviceParameter::deactivate: {
-
-            return "deactivate";
-        }
-        case DeviceParameter::start: {
-
-            return "start";
-        }
-        case DeviceParameter::pause: {
-
-            return "pause";
-        }
-        case DeviceParameter::thermostatTemperatureSetpoint: {
-
-            return "thermostatTemperatureSetpoint";
-        }
-        case DeviceParameter::thermostatTemperatureSetpointHigh: {
-
-            return "thermostatTemperatureSetpointHigh";
-        }
-        case DeviceParameter::thermostatTemperatureSetpointLow: {
-
-            return "thermostatTemperatureSetpointLow";
-        }
-        case DeviceParameter::thermostatMode: {
-
-            return "thermostatMode";
-        }
-        case DeviceParameter::updateToggleSettings: {
-
-            return "updateToggleSettings";
-        }
-        default: {
-
-            return "";
-        }
-    }
 }
