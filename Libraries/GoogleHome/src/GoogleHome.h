@@ -9,7 +9,7 @@
 
 typedef struct {
 
-  DeviceTraits trait;
+  DeviceTrait trait;
   String traitData;
 } TraitInfoBlock;
 
@@ -21,17 +21,12 @@ public:
   /**
    * Constructor
    */
-  GoogleHome(DeviceTypes deviceType);
+  GoogleHome(DeviceType deviceType);
 
   /**
    *  Resgister Supported Device Traits
    */
-  void registerDeviceTrait(DeviceTraits trait, String traitData);
-
-  /**
-   * Example method
-   */
-  void process();
+  void registerDeviceTrait(DeviceTrait trait, String traitData);
 
 private:
 

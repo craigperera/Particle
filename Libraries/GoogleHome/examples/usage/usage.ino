@@ -1,8 +1,8 @@
 // Example usage for GoogleHome library by Craig Perera.
-
 /*
 #include "../src/GoogleHome.h"
 #include "../src/GoogleHomeDefs.h"
+
 
 // Initialize objects from the lib
 GoogleHome googleHome(Thermostat);

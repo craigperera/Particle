@@ -1,6 +1,16 @@
 #pragma once
 
-typedef enum {
+#include <vector>
+
+typedef struct {
+
+    String deviceCommand;
+    String deviceParameter;
+    String parameterValue;
+
+} GoogleCommand;
+
+typedef enum class DeviceType {
   Camera = 1,
   Dishwasher = 2,
   Dryer = 3,
@@ -12,7 +22,7 @@ typedef enum {
   Washer = 9
 } DeviceTypes;
 
-typedef enum {
+typedef enum class DeviceTrait {
 
   Brightness = 1,
   CameraStream = 2,
@@ -28,7 +38,42 @@ typedef enum {
   Toggles = 2048
 } DeviceTraits;
 
-typedef enum {
+typedef enum class DeviceCommand {
+
+  BrightnessAbsolute = 1,
+  GetCameraStream = 2,
+  ColorAbsolute = 3,
+  Dock = 4,
+  SetModes = 5,
+  OnOff = 6,
+  ActivateScene = 7,
+  StartStop = 8,
+  PauseUnpause = 9,
+  ThermostatTemperatureSetpoint = 10,
+  ThermostatTemperatureSetRange = 11,
+  ThermostatSetMode = 12,
+  SetToggle = 13
+} DeviceCommands;
+
+typedef enum class DeviceParameter {
+
+  brightness = 1,
+  StreamToChromecast = 2,
+  SupportedStreamProtocols = 3,
+  color = 4,
+  updateModeSettings = 5,
+  on = 6,
+  deactivate = 7,
+  start = 8,
+  pause = 9,
+  thermostatTemperatureSetpoint = 10,
+  thermostatTemperatureSetpointHigh = 11,
+  thermostatTemperatureSetpointLow = 12,
+  thermostatMode = 13,
+  updateToggleSettings = 14
+} DeviceParameters;
+
+typedef enum class ErrorCode {
 
     unknownError = -1,
     authExpired = -2,
@@ -46,4 +91,7 @@ typedef enum {
     lockedToRange = -202,
     rangeTooClose = -203
 
-} ErrorCode;
+} ErrorCodes;
+
+//  external functions
+extern int execute(std::vector<GoogleCommand>& deviceCommand);
