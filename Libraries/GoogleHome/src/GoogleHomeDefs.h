@@ -75,7 +75,7 @@ typedef enum class ReturnCode {
     timeout = -5,
     deviceTurnedOff = -6,
     deviceNotFound = -7,
-    valueOutOfRange = 8,
+    valueOutOfRange = -8,
     notSupported = -9,
     protocolError = -10,
     resourceUnavailable = -100,
@@ -96,6 +96,3 @@ typedef struct {
 
 //  external functions
 extern int execute(std::vector<GoogleCommand>& deviceCommand);
-
-//  external variables
-extern String gData;

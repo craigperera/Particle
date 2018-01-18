@@ -1,7 +1,8 @@
 #pragma once
 
-/* GoogleHome library by Craig Perera
- */
+/*
+  GoogleHome library by Craig Perera (Copyright 2018)
+*/
 
 // This will load the definition for common Particle variable types
 #include "Particle.h"
@@ -27,6 +28,7 @@ public:
    *  Resgister Supported Device Traits
    */
   void registerDeviceTrait(DeviceTrait trait, String traitData);
+  void saveData(String dataToSave);
 
 private:
 

@@ -15,6 +15,7 @@ int translateIncomingCommand();
 
 //  variables
 String gData;
+String gTraitData;
 String incomingData = "";
 
 /**
@@ -29,6 +30,7 @@ GoogleHome::GoogleHome(DeviceType deviceType)
 
   //  register required varaibles
   Particle.variable("gData", gData);
+  Particle.variable("gTraits", gTraitData);
 
   // register required functions
   Particle.function("gInfo", getDeviceInformation);
@@ -46,6 +48,10 @@ void GoogleHome::registerDeviceTrait(DeviceTrait trait, String traitData) {
   tBlock.traitData = traitData;
 
   deviceTraits.push_back(tBlock);
+}
+void GoogleHome::saveData(String dataToSave) {
+
+  gData = dataToSave;
 }
 
 /*
@@ -89,7 +95,7 @@ int getDeviceInformation(String request)
     int ho2 = traitCount << 16;
 
     //  set the result into gData
-    gData = tBlock.traitData;
+    gTraitData = tBlock.traitData;
     return ho1 | ho2 | (int)tBlock.trait;
   }
 
