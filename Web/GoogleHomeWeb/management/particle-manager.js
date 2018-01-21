@@ -176,6 +176,18 @@ ParticleManager.prototype.loadDevices = async function (customerId, googleRespon
 }
 
 /*
+    Get the specified variable value from the device
+*/
+ParticleManager.prototype.getVariableValue = async function (deviceId, variableName, authToken) {
+
+    return await getParticleVariableValue(deviceId, authToken, variableName).catch(function (err) {
+
+        console.error(err);
+    });
+
+};
+
+/*
     Get Authorisation Token
 */
 function getAuthorisationToken(particleUser, particlePassword) {

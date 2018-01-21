@@ -198,7 +198,7 @@ router.post('/particlise', async function (request, response) {
             }
             case "action.devices.QUERY": {
 
-                query({
+                ActionManager.HandleQuery({
                     uid: tokenData.customerId,
                     auth: tokenData.authToken,
                     requestId: reqdata.requestId,

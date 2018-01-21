@@ -3,3 +3,4 @@
 gactions
 creds.data
 *.db
+package-lock*
