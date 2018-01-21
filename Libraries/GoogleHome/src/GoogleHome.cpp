@@ -197,15 +197,58 @@ int translateIncomingCommand() {
 
         // now create the structure
         GoogleCommand googleCommand;
+        googleCommand.parameters = std::vector<GoogleParameter>(0);
 
-        //  command is in the format of Command^ActionName^ActionValue
+        /*
+          Command is in the format of Command^[parameters]
+
+          First get the command name
+        */
         char buffer2[command.length()];
         command.toCharArray(buffer2, sizeof(buffer2));
 
-        //  first is the device command
         char* arg = strtok(buffer2, "^");
         googleCommand.deviceCommand = (DeviceCommand) atoi(arg);
 
+        /*
+          Parameters are a list of Key value pairs seperated with ^
+
+          i.e. if the incoming data was Command^set=cool^set=warm
+
+          this translated to Command with 2 parameters set to cool, then set to warm
+        */
+
+        while (true) {
+
+          arg = strtok(NULL, "^");
+
+          if (arg == NULL) {
+
+            break;
+          }
+
+          //  we have the parameter item so find the equals sign
+          String kvp = String(arg);
+
+          int eqPos = kvp.indexOf('=');
+
+          if (eqPos == -1) {
+
+              continue;
+          }
+
+          String lft = kvp.substring(0, eqPos);
+          String rgt = kvp.substring(eqPos + 1, kvp.length());
+
+          GoogleParameter parm;
+          parm.deviceParameter = (DeviceParameter)atoi(kvp.substring(0, eqPos));
+          parm.parameterValue = kvp.substring(eqPos + 1, kvp.length());
+
+          Serial.printlnf("Found parm %d with value %s", parm.deviceParameter, parm.parameterValue.c_str());
+          googleCommand.parameters.push_back(parm);
+        }
+
+/*
         //  next get the parameter name
         arg = strtok(NULL, "^");
         googleCommand.deviceParameter = (DeviceParameter)atoi(arg);
@@ -213,7 +256,7 @@ int translateIncomingCommand() {
         // finally the command parameter value
         arg = strtok(NULL, "^");
 
-        googleCommand.parameterValue = String(arg);
+        googleCommand.parameterValue = String(arg);*/
         deviceCommands.push_back(googleCommand);
     }
 

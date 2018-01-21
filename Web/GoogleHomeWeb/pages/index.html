@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Google Home and Particle Integration</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="keywords" content="Register Login Widget template Responsive, Login form web template,Flat Pricing tables,Flat Drop downs  Sign up Web Templates, Flat Web Templates, Login Signup Responsive web template, SmartPhone Compatible web template, free WebDesigns for Nokia, Samsung, LG, SonyEricsson, Motorola web design"
+    />
+    <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+
+    <link href="styles/main.css" rel="stylesheet" type="text/css" media="all" />
+    <link href='//fonts.googleapis.com/css?family=Jura:400,300,500,600' rel='stylesheet' type='text/css'>
+
+</head>
+
+<body>
+    <div class="main">
+        <div class="signin-form profile">
+            <img class="particle-login-logo" src="images/particle-small.png">
+
+            <div class="login-form">
+                <form action="/login" method="post">
+                    <input type="text" name="inp_name" placeholder="E-mail" required="">
+                    <input type="password" name="inp_pwd" placeholder="Password" required="">
+
+                    <div class="tp">
+                        <input type="submit" id="btn_submit" value="Login" />
+                    </div>
+
+                    <input type="hidden" id="client_id" name="client_id">
+                    <input type="hidden" id = "redirect_uri" name="redirect_uri">
+                    <input type="hidden" id="state" name="state" />
+                </form>
+            </div>
+        </div>
+
+        <div class="clear"></div>
+    </div>
+
+    <script>
+        var url_string = window.location.href;
+        var url = new URL(url_string);
+
+        var hdnRedirectUri = document.getElementById("redirect_uri");
+        var hdnClientId = document.getElementById("client_id");
+        var hdnState = document.getElementById("state");
+
+        hdnRedirectUri.value = url.searchParams.get("redirect_uri");
+        hdnClientId.value = url.searchParams.get("client_id");
+        hdnState.value = url.searchParams.get("state");
+    </script>
+</body>
+
+</html>

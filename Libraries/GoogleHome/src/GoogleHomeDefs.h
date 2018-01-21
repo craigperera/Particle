@@ -82,15 +82,20 @@ typedef enum class ReturnCode {
     inHeatOrCool = -200,
     inHeatCool = -201,
     lockedToRange = -202,
-    rangeTooClose = -203,
-    handleWithMultipleCommands = -999
+    rangeTooClose = -203
 } ReturnCodes;
 
 typedef struct {
 
+  DeviceParameter deviceParameter;
+  String parameterValue;
+
+} GoogleParameter;
+
+typedef struct {
+
     DeviceCommand deviceCommand;
-    DeviceParameter deviceParameter;
-    String parameterValue;
+    std::vector<GoogleParameter> parameters;
 
 } GoogleCommand;
 
