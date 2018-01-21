@@ -209,7 +209,7 @@ router.post('/particlise', async function (request, response) {
             }
             case "action.devices.EXECUTE": {
 
-                exec({
+                ActionManager.HandleExec({
                     uid: tokenData.customerId,
                     auth: tokenData.authToken,
                     requestId: reqdata.requestId,

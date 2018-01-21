@@ -49,6 +49,7 @@ void GoogleHome::registerDeviceTrait(DeviceTrait trait, String traitData) {
 
   deviceTraits.push_back(tBlock);
 }
+
 void GoogleHome::saveData(String dataToSave) {
 
   gData = dataToSave;
@@ -244,19 +245,9 @@ int translateIncomingCommand() {
           parm.deviceParameter = (DeviceParameter)atoi(kvp.substring(0, eqPos));
           parm.parameterValue = kvp.substring(eqPos + 1, kvp.length());
 
-          Serial.printlnf("Found parm %d with value %s", parm.deviceParameter, parm.parameterValue.c_str());
           googleCommand.parameters.push_back(parm);
         }
 
-/*
-        //  next get the parameter name
-        arg = strtok(NULL, "^");
-        googleCommand.deviceParameter = (DeviceParameter)atoi(arg);
-
-        // finally the command parameter value
-        arg = strtok(NULL, "^");
-
-        googleCommand.parameterValue = String(arg);*/
         deviceCommands.push_back(googleCommand);
     }
 

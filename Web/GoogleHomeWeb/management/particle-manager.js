@@ -184,7 +184,21 @@ ParticleManager.prototype.getVariableValue = async function (deviceId, variableN
 
         console.error(err);
     });
+};
 
+/*
+    Send a command to the particle
+*/
+ParticleManager.prototype.execute = async function (deviceId, authToken, inpData) {
+
+    var sendArgs = util.format("%d;%d;%s;", inpData.commandCount, inpData.commandIndex, inpData.command);
+
+    var res = await callParticleFunction(deviceId, authToken, "gExecute", sendArgs).catch(function (err) {
+
+        console.error(err);
+    });
+
+    return res;
 };
 
 /*
