@@ -15,7 +15,6 @@
 #include <GoogleHome.h>
 #include <GoogleHomeDefs.h>
 
-
 //  internal methods
 void setupDefaultClock();
 void getTemperature();
@@ -25,6 +24,7 @@ void setGoogleData();
 
 //  particle functions
 int receiveMessage(String message);
+void publishStateListener(const char *event, const char *data);
 
 DeviceState handleSingleCommand(GoogleCommand command, DeviceState prevState);
 
@@ -37,12 +37,13 @@ dallastemperature dallas(&oneWire);
 
 OneWire ds = OneWire(ONE_WIRE_BUS); //  4.7K resistor required on ONE_WIRE_BUS
 
+//  constants
+const int indexer = 0;
+
 //  variables
 String version = "HWC_0.0.4c";
 String localIp = "";
 String lastStatus = "";
-
-String particleInfo;
 
 long lastSent = 0;
 
@@ -70,8 +71,10 @@ void initialise() {
     Serial.begin(9600);
 
     //  register any variables
-    Particle.variable("pInfo", particleInfo);
     Particle.function("pMessage", receiveMessage);
+
+    //  register listener
+    Particle.subscribe("publishData", publishStateListener);
 
     pinMode(D2, INPUT);
     pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -106,10 +109,8 @@ void checkLoop() {
 
         isRunning = false;
     }
-    //  hot water will go on if the current temperature is below the min Temp
     else if (currentTemp < options.minTemp && overrideOn) {
 
-        Serial.printlnf("Is running true currentTemp %.1f < %d", currentTemp, options.minTemp);
         isRunning = true;
     }
 
@@ -173,7 +174,7 @@ int receiveMessage(String message) {
     String msg = String(token);
 
     //  send this part back to any other devices
-    String resend = String::format("%s^%s", uuid.c_str(), msg.c_str());
+    String resend = String::format("%d;%s^%s", indexer, uuid.c_str(), msg.c_str());
 
     //  broadcast change message to clients so they have the opportunity to react
     Particle.publish("evt_regu", resend, 1, PRIVATE);
@@ -347,8 +348,8 @@ void displayStatus(bool setOptions) {
         lastSent = millis();
         lastStatus = ls;
 
-        particleInfo = String::format("2;%s;%s;%s@tmp=%.1f", version.c_str(), localIp.c_str(), lastStatus.c_str(), currentTemp);
-        Particle.publish("evt_change", particleInfo, 10, PRIVATE);
+        String msg = String::format("%d;%s@tmp=%.1f", indexer, lastStatus.c_str(), currentTemp);
+        Particle.publish("evt_change", msg, 10, PRIVATE);
     }
     else {
 
@@ -365,8 +366,7 @@ void displayStatus(bool setOptions) {
                 lastSent = millis();
                 prevTemp = currentTemp;
 
-                particleInfo = String::format("2;%s;%s;%s@tmp=%.1f", version.c_str(), localIp.c_str(), lastStatus.c_str(), currentTemp);
-                Particle.publish("evt_temp", String::format("%.1f", currentTemp), 10, PRIVATE);
+                Particle.publish("evt_temp", String::format("%d;%.1f", indexer, currentTemp), 10, PRIVATE);
             }
         }
     }
@@ -605,6 +605,17 @@ void setGoogleData() {
 
     gHome.saveData(String::format("thermostatMode=heat;thermostatTemperatureSetpoint=%d;thermostatTemperatureAmbient=%.1f;", options.maxTemp, currentTemp));
 }
+
+/*
+  Listen for request to send data to clients
+*/
+void publishStateListener(const char *event, const char *data) {
+
+  delay(1000);
+  String msg = String::format("%d;%s;%s;%s@tmp=%.1f", indexer, version.c_str(), localIp.c_str(), lastStatus.c_str(), currentTemp);
+  Particle.publish("evt_change", msg, 10, PRIVATE);
+}
+
 
 /*
     Set's up the default time clock
