@@ -17,11 +17,11 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
-    "ngrok": "^2.2.24",
     "particle-api-js": "latest",
     "node-uuid": "^1.4.8",
     "sqlite3": "^3.1.13",
     "connect-sqlite3": "^0.9.10",
-    "node-fetch": "^1.7.3"
+    "node-fetch": "^1.7.3",
+    "@google-cloud/debug-agent": "^2.3.2"
   }
 }

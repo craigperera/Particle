@@ -12,9 +12,13 @@ void setCurrentState();
 Readings loadPinState();
 
 void publishMessage(int machineState, bool endWashNotification);
+void publishStateListener(const char *event, const char *data);
+
+//  constants
+const int indexer = 1;
 
 //  variables
-String version = "WMF_0.0.4a";
+String version = "WMF_0.0.4b";
 
 //  Washing Control
 String lastMessageSent;
@@ -25,8 +29,6 @@ int washStatus = READY;
 
 //  Washing running flag
 bool IsWashing = false;
-bool cloudStateChanged = false;
-bool isStarting = false;
 
 WashTimings currentWash;
 
@@ -46,6 +48,9 @@ void initialise() {
     //  Register functions
     Particle.function("runTest", setTestProgram);
 
+    //  register listener
+    Particle.subscribe("publishData", publishStateListener);
+
     //  now setup for running
     initState();
 }
@@ -61,12 +66,6 @@ void checkLoop() {
     }
 
     setPanelState(current);
-
-    //  check for incoming udp packets
-    //todo:....
-//    UDP_checkConnections();
-
-    isStarting = false;
 }
 
 /*
@@ -74,13 +73,13 @@ void checkLoop() {
 */
 void initState() {
 
+    EEPROM.clear();
+
     //  load the options model
     WashTimings timings;
     EEPROM.get(0, timings);
 
     if (timings.cycleStarted > -1) {
-
-      Particle.publish("test", "haveTimings", 10, PRIVATE);
 
       currentWash.cycleStarted = timings.cycleStarted;
       currentWash.washStarted = timings.washStarted;
@@ -95,8 +94,6 @@ void initState() {
     }
     else {
 
-      Particle.publish("test", "haveTimings", 10, PRIVATE);
-
       currentWash.cycleStarted = 0;
       currentWash.washStarted = 0;
       currentWash.washEnded = 0;
@@ -110,6 +107,20 @@ void initState() {
 
       EEPROM.put(0, currentWash);
     }
+
+    //  setup last Message
+    lastMessageSent = String::format("%d@%d@%d@%d@%d@%d@%d@%d@%d@%d@%d@",
+        currentWash.cycleStarted,
+        (currentWash.washStarted > 0) ? currentWash.washStarted - currentWash.cycleStarted : 0,
+        (currentWash.washEnded > 0) ? currentWash.washEnded - currentWash.cycleStarted : 0,
+        (currentWash.rinseStarted > 0) ? currentWash.rinseStarted - currentWash.cycleStarted : 0,
+        (currentWash.rinseEnded > 0) ? currentWash.rinseEnded - currentWash.cycleStarted : 0,
+        (currentWash.spinStarted > 0) ? currentWash.spinStarted - currentWash.cycleStarted : 0,
+        (currentWash.spinEnded > 0) ? currentWash.spinEnded - currentWash.cycleStarted : 0,
+        (currentWash.pumpoutStarted > 0) ? currentWash.pumpoutStarted - currentWash.cycleStarted : 0,
+        (currentWash.pumpoutEnded > 0) ? currentWash.pumpoutEnded - currentWash.cycleStarted : 0,
+        (currentWash.cycleEnded > 0) ? currentWash.cycleEnded - currentWash.cycleStarted : 0,
+        READY);
 }
 
 /*
@@ -432,19 +443,18 @@ void publishMessage(int machineState, bool endWashNotification) {
         //  store in EEPROM
         EEPROM.put(0, currentWash);
 
-        Particle.publish("evt_change", lastMessageSent, 10, PRIVATE);
+        Particle.publish("evt_change", String::format("%d;%s;%s;%s;", indexer, version.c_str(), localIp.c_str(), lastMessageSent.c_str()), 10, PRIVATE);
         return;
     }
 
-    if (lastMessageSent != tMessage || cloudStateChanged) {
+    if (lastMessageSent != tMessage) {
 
         lastMessageSent = tMessage;
-        cloudStateChanged = false;
 
         //  store in EEPROM
         EEPROM.put(0, currentWash);
 
-        Particle.publish("evt_change", lastMessageSent, 10, PRIVATE);
+        Particle.publish("Bevt_change", String::format("%d;%s;%s;%s;", indexer, version.c_str(), localIp.c_str(), lastMessageSent.c_str()), 10, PRIVATE);
     }
 }
 
@@ -461,4 +471,14 @@ void setCloudState() {
 
     //  reconnect
     Particle.connect();
+}
+
+/*
+  Listen for request to send data to clients
+*/
+void publishStateListener(const char *event, const char *data) {
+
+  delay(1500);
+  String msg = String::format("%d;%s;%s;%s", indexer, version.c_str(), localIp.c_str(), lastMessageSent.c_str());
+  Particle.publish("evt_change", msg, 10, PRIVATE);
 }

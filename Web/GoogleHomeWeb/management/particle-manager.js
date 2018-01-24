@@ -27,7 +27,7 @@ ParticleManager.prototype.getAuthToken = async function (particleUser, particleP
     let customerId = await SqliteManager.checkUserExists(particleUser);
 
     //  is the user already registered ?
-    if (customerId <= 0) {
+    if (!customerId || customerId <= 0) {
 
         //  first get the customers access token
         let mainToken = await getMainAccessToken(particleUser, particlePwd).catch(function (err) {

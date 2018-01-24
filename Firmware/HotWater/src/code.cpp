@@ -96,7 +96,6 @@ void initialise() {
 
     //  load the options model
     EEPROM.get(0, options);
-
 }
 
 void checkLoop() {
@@ -348,7 +347,7 @@ void displayStatus(bool setOptions) {
         lastSent = millis();
         lastStatus = ls;
 
-        String msg = String::format("%d;%s@tmp=%.1f", indexer, lastStatus.c_str(), currentTemp);
+        String msg = String::format("%d;%s;%s;%s@tmp=%.1f", indexer, version.c_str(), localIp.c_str(), lastStatus.c_str(), currentTemp);
         Particle.publish("evt_change", msg, 10, PRIVATE);
     }
     else {
@@ -615,7 +614,6 @@ void publishStateListener(const char *event, const char *data) {
   String msg = String::format("%d;%s;%s;%s@tmp=%.1f", indexer, version.c_str(), localIp.c_str(), lastStatus.c_str(), currentTemp);
   Particle.publish("evt_change", msg, 10, PRIVATE);
 }
-
 
 /*
     Set's up the default time clock
