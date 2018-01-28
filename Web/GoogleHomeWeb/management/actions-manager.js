@@ -27,7 +27,10 @@ ActionManager.prototype.HandleSync = async function (data, response) {
     }
 
     //  get devices for the customer id
-    var devices = await ParticleManager.loadDevices(customerId, true);
+    var devices = await ParticleManager.forcefail(customerId, true);
+
+    //todo: delete
+//    var devices = await ParticleManager.loadDevices(customerId, true);
 
     if (devices) {
 

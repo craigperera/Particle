@@ -1,0 +1,16 @@
+indexes:
+
+- kind: customer
+  properties:
+  - name: particleLogin
+  - name: customerId
+
+- kind: customer
+  properties:
+  - name: authToken
+  - name: customerId
+
+- kind: devices
+  properties:
+  - name: customerId
+  - name: deviceId

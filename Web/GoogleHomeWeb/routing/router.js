@@ -6,11 +6,11 @@ const router = express.Router();
 const authProvider = require('../management/auth-manager');
 const ActionsManager = require('../management/actions-manager');
 const ParticleHelper = require('../management/particle-manager');
-const sqllite = require('../management/sqlite-manager');
+const datastoreManager = require('../management/datastore-manager');
 
 const ParticleManager = new ParticleHelper();
-const SqliteManager = new sqllite('GoogleIntegration.db');
 const ActionManager = new ActionsManager();
+const DatastoreManager = new datastoreManager();
 
 /*
     /oauth implementation, will be called from Google Home
@@ -44,8 +44,8 @@ router.get('/oauth', function (req, res) {
 
     // Redirect anonymous users to login page.
     if (!user) {
-        return res.redirect(util.format('/?client_id=%s&redirect_uri=%s&redirect=%s&state=%s',
-            client_id, encodeURIComponent(redirect_uri), req.path, state));
+
+        return res.redirect(util.format('/?client_id=%s&redirect_uri=%s&redirect=%s&state=%s', client_id, encodeURIComponent(redirect_uri), req.path, state));
     }
 
     authCode = SmartHomeModel.getAuthCodeFromUid(user.uid);
@@ -59,6 +59,8 @@ router.get('/oauth', function (req, res) {
 });
 
 router.all('/token', async function (req, res) {
+
+    console.log("entering /token...");
 
     let client_id = req.query.client_id ? req.query.client_id : req.body.client_id;
     let client_secret = req.query.client_secret ? req.query.client_secret : req.body.client_secret;
@@ -77,7 +79,13 @@ router.all('/token', async function (req, res) {
         return res.status(400).send('Response is not from Google Actions');
     }
 
-    let tokenDetail = await SqliteManager.getAuthToken(auth_token);
+    let tokenDetail = await authProvider.getCustomerFromToken(auth_token);
+
+    if (tokenDetail == null) {
+
+        console.log("No token found");
+        return res.status(400).send('No token found');
+    }
 
     if (!tokenDetail || !tokenDetail.customerId || tokenDetail.customerId <= 0) {
 
@@ -86,10 +94,12 @@ router.all('/token', async function (req, res) {
 
     if ('authorization_code' == grant_type) {
 
+        console.log("Exitting /token checkAuthToken...");
         return authProvider.checkAuthToken(tokenDetail, res);
     }
     else if ('refresh_token' == grant_type) {
 
+        console.log("handle refresh token");
         return handleRefreshToken(req, res);
     }
     else {
@@ -99,7 +109,7 @@ router.all('/token', async function (req, res) {
     }
 });
 
-router.post('/login', async function (req, res) {
+router.post('/login', async function (req, res, next) {
 
     var redirectUri = req.body.redirect_uri;
     var state = req.body.state;
@@ -107,10 +117,31 @@ router.post('/login', async function (req, res) {
     var password = req.body.inp_pwd;
     var token;
 
-    //  if details not found re-login
-    if (!userName || userName.length == 0 || !password || password.length == 0) {
+    var result = "";
 
-        return res.redirect('/login');
+    //  if details not found re-login
+    if (!userName || userName.length == 0) {
+
+        var obj = {
+            clientId: -1,
+            isError: true,
+            msg: "No user name entered"
+        };
+
+        res.send(obj);
+        return;
+    }
+
+    if (!password || password.length == 0) {
+
+        var obj = {
+            clientId: -1,
+            isError: true,
+            msg: "No password entered"
+        };
+
+        res.send(obj);
+        return;
     }
 
     var data;
@@ -126,14 +157,97 @@ router.post('/login', async function (req, res) {
         data = await ParticleManager.getAuthToken(userName, password);
     }
 
+    //  failed to login to particle
     if (!data || !data.authToken || !data.customerId) {
 
-        let path = decodeURIComponent(req.body.redirect) || '/frontend';
+        var obj = {
+            clientId: -1,
+            isError: true,
+            msg: "Login Failed"
+        };
 
-        return res.redirect(util.format('%s?client_id=%s&redirect_uri=%s&state=%s&response_type=code', path, req.body.client_id, req.body.redirect_uri, req.body.state));
+        res.send(obj);
+        return;
+    }
+
+    //  are we logging in from google home or from website
+    if (!redirectUri || redirectUri.length() == 0) {
+
+        var obj = {
+            clientId: data.customerId,
+            isError: false,
+            msg: ""
+        };
+
+        res.send(obj);
+        return;
     }
 
     return res.redirect(util.format('%s?code=%s&state=%s', decodeURIComponent(req.body.redirect_uri), data.authToken, req.body.state));
+});
+
+/*
+    Load Users Devices
+*/
+router.post('/devices', async function (req, res, next) {
+
+    var customerId = req.body.clientId;
+
+    if (!customerId || customerId <= 0) {
+
+        var obj = {
+            clientId: -1,
+            isError: false,
+            msg: ""
+        };
+
+        res.send(obj);
+        return;
+    }
+
+    req.session.customerId = customerId;
+
+    //  get devices for the customer id
+    var result = await ParticleManager.loadDevices(Number(customerId), false);
+
+    var result = true;
+
+    if (!result) {
+
+        var obj = {
+            clientId: customerId,
+            isError: true,
+            msg: "No devices found for customer"
+        };
+
+        res.send(obj);
+        return;
+    }
+
+    var obj = {
+        clientId: customerId,
+        isError: false,
+        msg: ""
+    };
+
+    res.send(obj);
+});
+
+/*
+    Load Users Devices
+*/
+router.post('/deviceList', async function (req, res, next) {
+
+    var customerId = Number(req.session.customerId);
+    var devices = await DatastoreManager.loadCustomerDevices(customerId);
+
+    var result = {
+
+        isError: false,
+        deviceList: devices
+    }
+
+    res.send(result);
 });
 
 /**
@@ -148,10 +262,10 @@ router.options('/particlise', function (request, response) {
 
 router.post('/particlise', async function (request, response) {
 
+    console.log("Entering /particlise...");
     let reqdata = request.body;
 
-    let authToken = authProvider.getAccessToken(request);
-    let tokenData = await SqliteManager.getAuthToken(authToken);
+    let tokenData = await authProvider.getAccessToken(request);
 
     if (!tokenData || !tokenData.customerId || tokenData.customerId <= 0) {
 

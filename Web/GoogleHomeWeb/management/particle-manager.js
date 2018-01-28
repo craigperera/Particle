@@ -1,10 +1,12 @@
 const DeviceManager = require('./device-manager');
-const sqllite = require('./sqlite-manager');
+const authProvider = require('./auth-manager');
+const datastoreManager = require('./datastore-manager');
+const DatastoreManager = new datastoreManager();
+
 const Particle = require('particle-api-js');
 const util = require('util');
 
 const particleApp = new Particle();
-const SqliteManager = new sqllite('GoogleIntegration.db');
 
 function ParticleManager() {
 
@@ -24,70 +26,51 @@ ParticleManager.prototype.getAuthToken = async function (particleUser, particleP
         return;
     });
 
-    let customerId = await SqliteManager.checkUserExists(particleUser);
+    if (!token) {
 
-    //  is the user already registered ?
-    if (!customerId || customerId <= 0) {
-
-        //  first get the customers access token
-        let mainToken = await getMainAccessToken(particleUser, particlePwd).catch(function (err) {
-
-            console.error(err);
-            return;
-        });
-
-        if (!mainToken) {
-
-            return -99;
-        }
-
-        customerId = await SqliteManager.registerUser(particleUser, mainToken, token);
-
-        if (!customerId || customerId <= 0) {
-
-            console.error("Unable to register user");
-            return;
-        }
+        return;
     }
 
-    //  save the users token
-    var result = await SqliteManager.registerToken(token, customerId);
+    var id = await authProvider.saveCustomerDetail(particleUser, token);
+
+    if (id < 0) {
+
+        return;
+    }
 
     return {
         authToken: token.token,
-        customerId: customerId
+        customerId: id
     };
 };
 
 /*
     Load Devices for Google Home Sync command
 */
-ParticleManager.prototype.loadDevices = async function (customerId, googleResponseRequired) {
+ParticleManager.prototype.loadDevices = async function (customerId) {
 
     if (!customerId || customerId <= 0) {
 
-        return;
+        return false;
     }
 
     //  get customer id from token
-    var tokenDetail = await SqliteManager.getAuthTokenFromCustomerId(customerId);
+    var tokenDetail = await authProvider.getCustomerFromId(customerId);
 
     if (!tokenDetail || !tokenDetail.authToken) {
 
-        return;
+        return false;
     }
 
     let deviceList = await loadDeviceList(tokenDetail.authToken).catch(function (err) {
 
-        return;
+        return false;
     });
 
     if (!deviceList || deviceList.length == 0) {
 
-        return;
+        return false;
     }
-
-    var devices = [];
 
     //  now we need to find devices for google home, this is handled by the firmware
     for (var i = 0; i < deviceList.length; i++) {
@@ -151,6 +134,8 @@ ParticleManager.prototype.loadDevices = async function (customerId, googleRespon
 
             if (counter >= traitCount) {
 
+                //todo: delete
+                /*
                 //  add to the list of users devices
                 if (googleResponseRequired) {
 
@@ -159,20 +144,24 @@ ParticleManager.prototype.loadDevices = async function (customerId, googleRespon
                 else {
 
                     devices.push(deviceInfo);
-                }
+                }*/
 
+                //  save the device
+                var res = await DatastoreManager.saveCustomerDevice(customerId, device.id, deviceInfo.getGoogleResponse());
                 break;
             }
         }
     }
 
+    /*
     //  save the users devices
     this.UserDevices.push({
         customerId: tokenDetail.customerId,
         googleDevices: devices
     });
 
-    return devices;
+    return devices;*/
+    return true;
 }
 
 /*
@@ -206,11 +195,6 @@ ParticleManager.prototype.execute = async function (deviceId, authToken, inpData
 */
 function getAuthorisationToken(particleUser, particlePassword) {
 
-    let timeout = setTimeout(() => {
-
-        reject(new Error("Login timed out..."));
-    }, 5000);
-
     //  first get customer id
     return new Promise(function (resolve, reject) {
 
@@ -219,7 +203,6 @@ function getAuthorisationToken(particleUser, particlePassword) {
             password: particlePassword
         }).then(function (data) {
 
-            clearTimeout(timeout);
             resolve({
                 token: data.body.access_token,
                 refreshToken: data.body.refresh_token,
@@ -227,51 +210,6 @@ function getAuthorisationToken(particleUser, particlePassword) {
             });
         }, function (err) {
 
-            clearTimeout(timeout);
-            reject(new Error(err.message));
-        });
-    });
-};
-
-/*
-    Find the User Token (Access Token from the build.particle.io settings page)
-
-    On Success returns the users main Access Token, null on error or none found
-*/
-function getMainAccessToken(particleUser, particlePwd) {
-
-    let timeout = setTimeout(() => {
-
-        reject(new Error("getMainAccessToken Timed out ..."));
-
-    }, 5000);
-
-    return new Promise(function (resolve, reject) {
-
-        particleApp.listAccessTokens({
-            username: particleUser,
-            password: particlePwd
-        }).then(function (data) {
-
-            clearTimeout(timeout);
-
-            for (var i = 0; i < data.body.length; i++) {
-
-                var aToken = data.body[i];
-
-                if (!aToken || aToken.client != "user" || aToken.expiresAt) {
-
-                    continue;
-                }
-
-                //  okay found the user token
-                resolve(aToken.token);
-                return;
-            }
-
-        }, function (err) {
-
-            clearTimeout(timeout);
             reject(new Error(err.message));
         });
     });

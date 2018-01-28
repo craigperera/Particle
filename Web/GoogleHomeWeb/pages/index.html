@@ -8,35 +8,108 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="keywords" content="Register Login Widget template Responsive, Login form web template,Flat Pricing tables,Flat Drop downs  Sign up Web Templates, Flat Web Templates, Login Signup Responsive web template, SmartPhone Compatible web template, free WebDesigns for Nokia, Samsung, LG, SonyEricsson, Motorola web design"
     />
-    <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+    <!--    <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script> -->
 
-    <link href="styles/main.css" rel="stylesheet" type="text/css" media="all" />
     <link href='//fonts.googleapis.com/css?family=Jura:400,300,500,600' rel='stylesheet' type='text/css'>
 
+    <link href="styles/main.css" rel="stylesheet" type="text/css" media="all" />
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            $("#btn_submit").click(function () {
+
+                var hdnRedirectUri = document.getElementById("redirect_uri");
+
+                var loader = document.getElementById("overlay");
+                loader.style.display = "block";
+
+                var user = $("#inp_name").val();
+                var pwd = $("#inp_pwd").val();
+                var rdu = $("#redirect_uri").val();
+                var st = $("#state").val();
+
+                $.post("/login", {
+                    inp_name: user,
+                    inp_pwd: pwd,
+                    redirect_uri: rdu,
+                    state: st
+                }, function (data) {
+
+                    var errMsg = $("#errmsg");
+
+                    if (data.isError) {
+
+                        loader.style.display = "none";
+
+                        errMsg.text(data.msg);
+                        errMsg.show();
+                        return;
+                    }
+
+                    errMsg.text("");
+                    errMsg.hide();
+
+                    var customerId = data.clientId;
+                    var loaderText = $("#loading-text");
+                    loaderText.css('margin-left', '-50px');
+                    loaderText.text("Loading Devices ...");
+
+                    $.post("/devices", {
+                        clientId: customerId
+                    }, function (data) {
+
+                        if (data.isError) {
+
+                            loader.style.display = "none";
+
+                            errMsg.text(data.msg);
+                            errMsg.show();
+                            return;
+                        }
+
+                        var loaderText = $("#loading-text");
+                        loaderText.text("Devices Loaded ...");
+
+                        setTimeout(function() {
+
+                            window.location = "/devices.html";
+                            
+                        }, 1000);
+                    });
+                });
+            });
+        });
+    </script>
 </head>
 
 <body>
+    <div id="overlay">
+        <img id="loading" src="images/ajax-loader.gif" />
+        <h2 id="loading-text">Loading ...</h2>
+    </div>
+
     <div class="main">
+        <img class="particle-login-logo" src="images/particle-small.png" />
         <div class="signin-form profile">
-            <img class="particle-login-logo" src="images/particle-small.png">
-
             <div class="login-form">
-                <form action="/login" method="post">
-                    <input type="text" name="inp_name" placeholder="E-mail" required="">
-                    <input type="password" name="inp_pwd" placeholder="Password" required="">
+                <input type="text" name="inp_name" id="inp_name" placeholder="E-mail" required="" />
+                <input type="password" name="inp_pwd" id="inp_pwd" placeholder="Password" required="" />
 
-                    <div class="tp">
-                        <input type="submit" id="btn_submit" value="Login" />
-                    </div>
+                <br/>
+                <span id="errmsg" class="error-message">Error Here</span>
 
-                    <input type="hidden" id="client_id" name="client_id">
-                    <input type="hidden" id = "redirect_uri" name="redirect_uri">
-                    <input type="hidden" id="state" name="state" />
-                </form>
+                <div class="tp">
+                    <input type="submit" id="btn_submit" value="Login" />
+                </div>
+
+                <input type="hidden" id="client_id" name="client_id" />
+                <input type="hidden" id="redirect_uri" name="redirect_uri" />
+                <input type="hidden" id="state" name="state" />
             </div>
         </div>
-
-        <div class="clear"></div>
     </div>
 
     <script>
@@ -50,6 +123,9 @@
         hdnRedirectUri.value = url.searchParams.get("redirect_uri");
         hdnClientId.value = url.searchParams.get("client_id");
         hdnState.value = url.searchParams.get("state");
+
+        var loader = document.getElementById("overlay");
+        loader.style.display = "none";
     </script>
 </body>
 
