@@ -171,10 +171,11 @@ router.post('/login', async function (req, res, next) {
     }
 
     //  are we logging in from google home or from website
-    if (!redirectUri || redirectUri.length() == 0) {
+    if (!redirectUri || redirectUri.length == 0) {
 
         var obj = {
             clientId: data.customerId,
+            doRedirect: false,
             isError: false,
             msg: ""
         };
@@ -183,7 +184,16 @@ router.post('/login', async function (req, res, next) {
         return;
     }
 
-    return res.redirect(util.format('%s?code=%s&state=%s', decodeURIComponent(req.body.redirect_uri), data.authToken, req.body.state));
+    var obj = {
+        isError: false,
+        doRedirect: true,
+        redirect: util.format('%s?code=%s&state=%s', decodeURIComponent(req.body.redirect_uri), data.authToken, req.body.state)
+    };
+
+    res.send(obj);
+    
+
+//    return res.redirect(util.format('%s?code=%s&state=%s', decodeURIComponent(req.body.redirect_uri), data.authToken, req.body.state));
 });
 
 /*
@@ -207,11 +217,11 @@ router.post('/devices', async function (req, res, next) {
 
     req.session.customerId = customerId;
 
+    //todo: temp
     //  get devices for the customer id
-    var result = await ParticleManager.loadDevices(Number(customerId), false);
+//    var result = await ParticleManager.loadDevices(Number(customerId), false);
 
     var result = true;
-
     if (!result) {
 
         var obj = {

@@ -3,7 +3,10 @@ const util = require('util');
 
 const ParticleHelper = require('../management/particle-manager');
 const CommandManager = require('../management/command-manager');
+const datastoreManager = require('../management/datastore-manager');
+
 const ParticleManager = new ParticleHelper();
+const DatastoreManager = new datastoreManager();
 
 function ActionManager() {
 
@@ -27,18 +30,22 @@ ActionManager.prototype.HandleSync = async function (data, response) {
     }
 
     //  get devices for the customer id
-    var devices = await ParticleManager.forcefail(customerId, true);
-
-    //todo: delete
-//    var devices = await ParticleManager.loadDevices(customerId, true);
-
+    var devices = await DatastoreManager.loadCustomerDevices(customerId);
+    
     if (devices) {
+
+        var deviceResponses = [];
+
+        for (var i = 0; i < devices.length; i++) {
+
+            deviceResponses.push(devices[i].response);
+        }
 
         let deviceProps = {
             requestId: data.requestId,
             payload: {
                 agentUserId: data.uid,
-                devices: devices
+                devices: deviceResponses
             }
         };
 

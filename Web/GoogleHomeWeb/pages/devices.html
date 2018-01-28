@@ -42,14 +42,25 @@
 
                     var cell1 = row.insertCell(0);
                     var cell2 = row.insertCell(1);
+
+                    var keys = Object.keys(device.response.attributes);
+
                     var rowSpan = device.response.traits.length;
+                    var traitCount = device.response.traits.length;
+                    var attrCount = keys.length;
+
+                    //  set rowSpan
+                    if (attrCount > traitCount) {
+
+                        rowSpan = attrCount;
+                    }
 
                     cell1.innerHTML = device.deviceId;
                     cell1.rowSpan = rowSpan;
                     cell2.innerHTML = device.response.type;
                     cell2.rowSpan = rowSpan;
 
-                    for (var ia = 0; ia < rowSpan; ia++) {
+                    for (var ia = 0; ia < traitCount; ia++) {
 
                         var trait = device.response.traits[ia];
 
@@ -57,12 +68,37 @@
 
                             var r2 = table.insertRow(i + ia + 1);
                             var cell3 = r2.insertCell(0);
+                            
                             cell3.innerHTML = trait;
+                            cell3.rowSpan = rowSpan;
                         }
                         else {
 
                             var cell3 = row.insertCell(2);
                             cell3.innerHTML = trait;
+                            cell3.rowSpan = rowSpan;
+                        }
+                    }
+
+                    var tableSize = table.rows.length;
+
+                    for (var ib = 0; ib < keys.length; ib++) {
+
+                        var row = ib + 1;
+
+                        if (row >= tableSize) {
+
+                            //todo: add row
+                            var rw = table.insertRow(table.rows.length);
+                            var c3 = rw.insertCell(0);
+                            c3.innerHTML = keys[ib] + "=" + device.response.attributes[keys[ib]];
+                        }
+                        else {
+
+                            var rw = table.rows[row];
+
+                            var cell3 = rw.insertCell(3);
+                            cell3.innerHTML = keys[ib] + "=" + device.response.attributes[keys[ib]];
                         }
                     }
                 }
@@ -81,15 +117,10 @@
         <h1>Google Enabled Devices</h1>
         <br/>
         <table id="devTable">
-            <th>
-                Device Id
-            </th>
-            <th>
-                Device Type
-            </th>
-            <th>
-                Device Traits
-            </th>
+            <th>Device Id</th>
+            <th>Device Type</th>
+            <th>Device Traits</th>
+            <th>Attributes</th>
         </table>
     </div>
 </body>

@@ -52,6 +52,12 @@
                     errMsg.text("");
                     errMsg.hide();
 
+                    if (data.doRedirect != null && data.doRedirect) {
+
+                        window.location = data.redirect;
+                        return;
+                    }
+
                     var customerId = data.clientId;
                     var loaderText = $("#loading-text");
                     loaderText.css('margin-left', '-50px');

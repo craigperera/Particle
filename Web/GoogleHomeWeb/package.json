@@ -19,7 +19,6 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
-    "ngrok": "^2.2.25",
     "node-fetch": "^1.7.3",
     "node-uuid": "^1.4.8",
     "particle-api-js": "latest"

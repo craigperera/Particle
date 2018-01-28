@@ -1,11 +1,11 @@
-//require('@google-cloud/debug-agent').start();
+require('@google-cloud/debug-agent').start();
 
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var session = require('express-session');
 
-var ngrok = require('ngrok');
+//var ngrok = require('ngrok');
 
 const authProvider = require('./management/auth-manager');
 const actionsManager = require('./management/actions-manager');
@@ -36,6 +36,7 @@ const server = app.listen(appPort, function () {
     const host = server.address().address;
     const port = server.address().port;
 
+    /*
     ngrok.connect({
         addr: appPort,
         subdomain: "mutleysoftware",
@@ -53,7 +54,7 @@ const server = app.listen(appPort, function () {
         console.log("|     " + url + "            |");
         console.log("|                                                   |");
         console.log("|###################################################|");
-    });
+    });*/
 });
 
 authProvider.registerAuth(app);
