@@ -60,8 +60,6 @@ router.get('/oauth', function (req, res) {
 
 router.all('/token', async function (req, res) {
 
-    console.log("entering /token...");
-
     let client_id = req.query.client_id ? req.query.client_id : req.body.client_id;
     let client_secret = req.query.client_secret ? req.query.client_secret : req.body.client_secret;
     let grant_type = req.query.grant_type ? req.query.grant_type : req.body.grant_type;
@@ -83,7 +81,6 @@ router.all('/token', async function (req, res) {
 
     if (tokenDetail == null) {
 
-        console.log("No token found");
         return res.status(400).send('No token found');
     }
 
@@ -94,13 +91,15 @@ router.all('/token', async function (req, res) {
 
     if ('authorization_code' == grant_type) {
 
-        console.log("Exitting /token checkAuthToken...");
         return authProvider.checkAuthToken(tokenDetail, res);
     }
     else if ('refresh_token' == grant_type) {
 
-        console.log("handle refresh token");
-        return handleRefreshToken(req, res);
+        //  particle login doesn't support refresh token without a client id
+        //  so we generate a non-expiring token
+        //  if we need to refresh user has to re-login
+        console.error(err);
+        return res.redirect(util.format('/?client_id=%s&redirect_uri=%s&redirect=%s&state=%s', client_id, encodeURIComponent(redirect_uri), req.path, state));
     }
     else {
 
@@ -217,11 +216,9 @@ router.post('/devices', async function (req, res, next) {
 
     req.session.customerId = customerId;
 
-    //todo: temp
     //  get devices for the customer id
-//    var result = await ParticleManager.loadDevices(Number(customerId), false);
+    var result = await ParticleManager.loadDevices(Number(customerId), false);
 
-    var result = true;
     if (!result) {
 
         var obj = {
@@ -248,6 +245,18 @@ router.post('/devices', async function (req, res, next) {
 */
 router.post('/deviceList', async function (req, res, next) {
 
+    if (!req.session.customerId || req.session.customerId == null) {
+
+        var result = {
+
+            redirect: "/",
+            isError: true
+        }
+
+        res.send(result);
+        return;
+    }
+
     var customerId = Number(req.session.customerId);
     var devices = await DatastoreManager.loadCustomerDevices(customerId);
 
@@ -272,7 +281,6 @@ router.options('/particlise', function (request, response) {
 
 router.post('/particlise', async function (request, response) {
 
-    console.log("Entering /particlise...");
     let reqdata = request.body;
 
     let tokenData = await authProvider.getAccessToken(request);

@@ -31,7 +31,7 @@ class oledcontrol {
         /*
             Display Temperatures when in an Active state (A current event exists)
         */
-        void displayTemperature(double temp, double target, bool isRunning, const char* until);
+        void displayTemperature(double temp, int target, int min, bool isRunning, const char* until);
 
         /*
             Display Temperatures when in an In-Active state (no current event exists)

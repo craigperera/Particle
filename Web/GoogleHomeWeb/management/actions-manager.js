@@ -301,7 +301,6 @@ ActionManager.prototype.HandleExec = async function exec(data, response) {
         }
     };
 
-    console.log(JSON.stringify(resBody));
     response.status(200).json(resBody);
     return resBody;
 }

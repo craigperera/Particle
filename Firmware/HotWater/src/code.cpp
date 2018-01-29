@@ -143,7 +143,7 @@ void setOverrideState() {
 
 void setRunningMode(bool running) {
 
-    overrideOn = !running;
+    overrideOn = running;
 }
 
 /*
@@ -195,8 +195,6 @@ int receiveMessage(String message) {
         System.reset();
         return 0;
     }
-
-    Serial.printlnf("Message : ", msg.c_str());
 
     /*
         Change to options
@@ -253,8 +251,6 @@ int receiveMessage(String message) {
         EEPROM.put(0, options);
         return 0;
     }
-
-    Serial.printlnf("Message %s", message.c_str());
 
     return -1;
 }
@@ -377,7 +373,7 @@ void displayStatus(bool setOptions) {
     else {
 
         String until = String::format("%02d:%02d", options.onStartHour, options.onStartMin);
-        oled.displayTemperature(currentTemp, options.maxTemp, isRunning, until);
+        oled.displayTemperature(currentTemp, options.maxTemp, options.minTemp, isRunning, until);
     }
 }
 
@@ -496,7 +492,16 @@ DeviceState handleSingleCommand(GoogleCommand command, DeviceState prevState) {
             //  turning the hot water on
             if (lcVal == "on" || lcVal == "heat") {
 
-                setRunningMode(true);
+                //  can't turn on if we are above the maximum
+                if (currentTemp >= (options.highBoundaryTemp + 2.0)) {
+
+                  resultState.result = ReturnCode::valueOutOfRange;
+                  return resultState;
+                }
+
+                //  running mode is the opposite of the state we want
+                //  so on is false, off is true
+                setRunningMode(false);
 
                 resultState.result = ReturnCode::success;
                 return resultState;
@@ -504,7 +509,7 @@ DeviceState handleSingleCommand(GoogleCommand command, DeviceState prevState) {
 
             if (lcVal == "off") {
 
-                setRunningMode(false);
+                setRunningMode(true);
 
                 resultState.result = ReturnCode::success;
                 return resultState;
@@ -594,15 +599,18 @@ DeviceState handleSingleCommand(GoogleCommand command, DeviceState prevState) {
 */
 void setGoogleData() {
 
+    String mode = "off";
+
     //  update google temp data
-    if (!isRunning) {
+    if (isRunning) {
 
-        gHome.saveData("thermostatMode=off;");
-
-        return;
+      mode = "heat";
     }
 
-    gHome.saveData(String::format("thermostatMode=heat;thermostatTemperatureSetpoint=%d;thermostatTemperatureAmbient=%.1f;", options.maxTemp, currentTemp));
+    gHome.saveData(String::format("thermostatMode=%s;thermostatTemperatureSetpoint=%d;thermostatTemperatureAmbient=%.1f;",
+      mode.c_str(),
+      options.maxTemp,
+      currentTemp));
 }
 
 /*

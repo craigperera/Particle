@@ -200,12 +200,13 @@ function getAuthorisationToken(particleUser, particlePassword) {
 
         particleApp.login({
             username: particleUser,
-            password: particlePassword
+            password: particlePassword,
+            tokenDuration: 0
         }).then(function (data) {
 
             resolve({
                 token: data.body.access_token,
-                refreshToken: data.body.refresh_token,
+                refreshToken: data.body.access_token,
                 expiresIn: data.body.expires_in
             });
         }, function (err) {

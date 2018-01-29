@@ -13,7 +13,7 @@ DatastoreManager.prototype.getCustomerId = async function (particleLogin, token)
     //  first see if customer already exists
     var customerId = await findLoggedinUser(particleLogin, token).catch(function (err) {
 
-        console.log(err);
+        console.error(err);
         return -999;
     });
 
@@ -24,7 +24,7 @@ DatastoreManager.prototype.getCustomerId = async function (particleLogin, token)
 
     customerId = await findNextUser().catch(function (err) {
 
-        console.log(err);
+        console.error(err);
         return -999;
     });
 
@@ -51,7 +51,7 @@ DatastoreManager.prototype.getCustomerFromToken = async function (auth_token) {
     //  first see if customer already exists
     var tokenObj = await findCustomerFromToken(auth_token).catch(function (err) {
 
-        console.log(err);
+        console.error(err);
         return -999;
     });
 
@@ -71,7 +71,7 @@ DatastoreManager.prototype.getTokenFromCustomerId = async function (customerId) 
     //  first see if customer already exists
     var tokenObj = await findTokenFromCustomerId(customerId).catch(function (err) {
 
-        console.log(err);
+        console.error(err);
         return -999;
     });
 

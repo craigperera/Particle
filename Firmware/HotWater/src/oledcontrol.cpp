@@ -10,41 +10,39 @@ oledcontrol::oledcontrol(sh1106 *display) {
 /*
     When the Current System is active display the key information
 */
-void oledcontrol::displayTemperature(double temp, double target, bool isRunning, const char* until) {
+void oledcontrol::displayTemperature(double temp, int target, int min, bool isRunning, const char* until) {
 
     //  convert temperatures double to display
-    String tmp = String::format("%.1f", temp);
-    String targ = String::format("%.1fº", target);
+    String tmp = String::format("%.1fº", temp);
+    String targ = String::format("%dº", target);
+    String low = String::format("%dº", min);
 
-    int tmpLeft = 26;
-    int targLeft = 90;
+    int tmpLeft = 30;
+    int minLeft = 60;
+    int targLeft = 100;
 
     if (temp == floor(temp)) {
 
-        tmp = String::format("%.0f", temp);
+        tmp = String::format("%.0fº", temp);
         tmpLeft = 36;
-    }
-
-    if (target == floor(target)) {
-
-        targ = String::format("%.0fº", target);
-        targLeft = 100;
     }
 
     //  Clear Screen
     this->display->clear();
 
+    //  display current temperature
     this->display->setFont(Droid_Sans_Bold_40);
     this->display->drawString(tmpLeft, 4, (const char*) tmp);
 
-    //  display target temperature
+    //  show the time off, min and max temps
     this->display->setFont(ArialMT_Plain_16);
     this->display->drawString(5, 48, until);
+    this->display->drawString(minLeft, 48, (const char*)low);
     this->display->drawString(targLeft, 48, (const char*)targ);
 
     if (isRunning) {
 
-        this->display->drawBitmap(108, 16, Flame_Logo_width, Flame_Logo_height, Flame_Logo_bits);
+        this->display->drawBitmap(5, 14, Flame_Logo_width, Flame_Logo_height, Flame_Logo_bits);
     }
 
     this->display->display();

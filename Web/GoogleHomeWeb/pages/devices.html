@@ -17,7 +17,7 @@
         $(document).ready(function () {
 
             var loader = document.getElementById("overlay");
-            loader.style.display = "block";
+            loader.style.display = "table";
 
             var loaderText = $("#loading-text");
             loaderText.css('margin-left', '-50px');
@@ -29,7 +29,7 @@
 
                 if (data.isError) {
 
-                    alert(data.redirect);
+                    window.location = data.redirect;
                     return;
                 }
 
@@ -68,7 +68,7 @@
 
                             var r2 = table.insertRow(i + ia + 1);
                             var cell3 = r2.insertCell(0);
-                            
+
                             cell3.innerHTML = trait;
                             cell3.rowSpan = rowSpan;
                         }
@@ -113,7 +113,7 @@
         <h2 id="loading-text">Loading ...</h2>
     </div>
 
-    <div>
+    <div class="main">
         <h1>Google Enabled Devices</h1>
         <br/>
         <table id="devTable">
@@ -122,6 +122,7 @@
             <th>Device Traits</th>
             <th>Attributes</th>
         </table>
+        <br/>
     </div>
 </body>
 
