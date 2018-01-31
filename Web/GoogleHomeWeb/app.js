@@ -3,7 +3,7 @@ var app = express();
 var bodyParser = require('body-parser');
 var session = require('express-session');
 
-var ngrok = require('ngrok');
+//var ngrok = require('ngrok');
 
 const authProvider = require('./management/auth-manager');
 const actionsManager = require('./management/actions-manager');
@@ -23,6 +23,7 @@ app.enable('trust proxy');
 
 // serve static files from template
 app.use(express.static(__dirname + '/pages'));
+app.use('/privacy', express.static(__dirname + '/pages/privacyPolicy.html'));
 
 // include routes
 var routes = require('./routing/router');
@@ -33,7 +34,7 @@ const server = app.listen(appPort, function () {
 
     const host = server.address().address;
     const port = server.address().port;
-
+/*
     ngrok.connect({
         addr: appPort,
         subdomain: "mutleysoftware",
@@ -51,7 +52,7 @@ const server = app.listen(appPort, function () {
         console.log("|     " + url + "            |");
         console.log("|                                                   |");
         console.log("|###################################################|");
-    });
+    });*/
 });
 
 authProvider.registerAuth(app);

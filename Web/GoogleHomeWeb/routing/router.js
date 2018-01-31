@@ -12,6 +12,11 @@ const ParticleManager = new ParticleHelper();
 const ActionManager = new ActionsManager();
 const DatastoreManager = new datastoreManager();
 
+router.all('/privacy', function(req, res) {
+
+    res.redirect('pages/privacyPolicy.html');
+});
+
 /*
     /oauth implementation, will be called from Google Home
 */
