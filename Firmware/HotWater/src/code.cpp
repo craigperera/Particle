@@ -190,7 +190,7 @@ int receiveMessage(String message) {
     if (msg.toLowerCase().startsWith("rst")) {
 
         //  allow message to be sent
-        delay(5000);
+        delay(2000);
 
         System.reset();
         return 0;
@@ -205,7 +205,7 @@ int receiveMessage(String message) {
     */
     if (msg.toLowerCase().startsWith("opt")) {
 
-        delay(3000);
+        delay(2000);
 
         token = strtok(NULL, "^");
         String data = String(token);

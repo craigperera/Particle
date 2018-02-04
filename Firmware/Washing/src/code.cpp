@@ -527,7 +527,7 @@ int receiveMessage(String message) {
         Particle.publish("RESTARTING");
 
         //  allow message to be sent
-        delay(5000);
+        delay(2000);
 
         System.reset();
         return 0;
