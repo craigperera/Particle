@@ -11,14 +11,16 @@ void setCurrentState();
 
 Readings loadPinState();
 
+//  particle functions
 void publishMessage(int machineState, bool endWashNotification);
 void publishStateListener(const char *event, const char *data);
+int receiveMessage(String message);
 
 //  constants
 const int indexer = 1;
 
 //  variables
-String version = "WMF_0.0.4b";
+String version = "WMF_0.0.4d";
 
 //  Washing Control
 String lastMessageSent;
@@ -47,12 +49,17 @@ void initialise() {
 
     //  Register functions
     Particle.function("runTest", setTestProgram);
+    Particle.function("pMessage", receiveMessage);
 
     //  register listener
     Particle.subscribe("publishData", publishStateListener);
 
     //  now setup for running
     initState();
+
+    //  to ensure we clear pending message always broadcast details on startup
+    String msg = String::format("%d;%s;%s;%s", indexer, version.c_str(), localIp.c_str(), lastMessageSent.c_str());
+    Particle.publish("evt_change", msg, 10, PRIVATE);
 }
 
 void checkLoop() {
@@ -72,8 +79,6 @@ void checkLoop() {
     Initialise State Objects
 */
 void initState() {
-
-    EEPROM.clear();
 
     //  load the options model
     WashTimings timings;
@@ -198,7 +203,7 @@ void setPanelState(Readings state) {
     bool spin = (state.a3 > 300) ? true : false;
     bool empty = (state.a2 > 300) ? true : false;
     bool machineEnd = (state.a1 > 300) ? true : false;
-    bool doorLock = (state.a0 > 2000) ? true : false;
+    bool doorLock = (state.a0 > 1000) ? true : false;
 
     //  how many panel lights are on ?
     int count = 0;
@@ -435,7 +440,7 @@ void publishMessage(int machineState, bool endWashNotification) {
     if (endWashNotification && IsWashing) {
 
         //  Send IOS Notification
-//        Particle.publish("foregroundNotification", "The Washing is ready to go into the dryer", PRIVATE);
+        Particle.publish("foregroundNotification", "The Washing is ready to go into the dryer", PRIVATE);
 
         lastMessageSent = tMessage;
         IsWashing = false;
@@ -454,7 +459,7 @@ void publishMessage(int machineState, bool endWashNotification) {
         //  store in EEPROM
         EEPROM.put(0, currentWash);
 
-        Particle.publish("Bevt_change", String::format("%d;%s;%s;%s;", indexer, version.c_str(), localIp.c_str(), lastMessageSent.c_str()), 10, PRIVATE);
+        Particle.publish("evt_change", String::format("%d;%s;%s;%s;", indexer, version.c_str(), localIp.c_str(), lastMessageSent.c_str()), 10, PRIVATE);
     }
 }
 
@@ -481,4 +486,53 @@ void publishStateListener(const char *event, const char *data) {
   delay(1500);
   String msg = String::format("%d;%s;%s;%s", indexer, version.c_str(), localIp.c_str(), lastMessageSent.c_str());
   Particle.publish("evt_change", msg, 10, PRIVATE);
+}
+
+/*
+    Recevies a message from the Application
+    Format deviceId;message
+
+    returns 0 if handled, -1 if not
+*/
+int receiveMessage(String message) {
+
+    if (message == NULL || message.length() == 0) {
+
+        return -1;
+    }
+
+    char buffer[message.length()];
+    message.toCharArray(buffer, sizeof(buffer));
+
+    //  first part of the message is the device UUID
+    char* token = strtok(buffer, "^");
+    String uuid = String(token);
+
+    //  next we have the message itself
+    token = strtok(NULL, "^");
+    String msg = String(token);
+
+    //  send this part back to any other devices
+    String resend = String::format("%d;%s^%s", indexer, uuid.c_str(), msg.c_str());
+
+    //  broadcast change message to clients so they have the opportunity to react
+    Particle.publish("evt_regu", resend, 1, PRIVATE);
+
+    //  Restart Photon requested
+    if (msg.toLowerCase().startsWith("rst")) {
+
+        //  save state
+        EEPROM.put(0, currentWash);
+
+        Particle.publish("RESTARTING");
+
+        //  allow message to be sent
+        delay(5000);
+
+        System.reset();
+        return 0;
+    }
+
+    //  undefined message
+    return -1;
 }

@@ -23,7 +23,11 @@ app.enable('trust proxy');
 
 // serve static files from template
 app.use(express.static(__dirname + '/pages'));
-app.use('/privacy', express.static(__dirname + '/pages/privacyPolicy.html'));
+
+app.all('/privacy', function(req, res) {
+
+    res.sendFile('pages/privacypolicy.html', {root: __dirname});
+});
 
 // include routes
 var routes = require('./routing/router');
@@ -34,7 +38,8 @@ const server = app.listen(appPort, function () {
 
     const host = server.address().address;
     const port = server.address().port;
-/*
+
+    /*
     ngrok.connect({
         addr: appPort,
         subdomain: "mutleysoftware",

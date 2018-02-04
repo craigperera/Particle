@@ -70,7 +70,7 @@ void initialise() {
 
     Serial.begin(9600);
 
-    //  register any variables
+    //  register any functions
     Particle.function("pMessage", receiveMessage);
 
     //  register listener
