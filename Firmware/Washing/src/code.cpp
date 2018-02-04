@@ -136,6 +136,7 @@ void initStateOnStartup() {
     Initialise State Objects
 */
 void initState() {
+
   currentWash.cycleStarted = 0;
   currentWash.washStarted = 0;
   currentWash.washEnded = 0;
@@ -227,31 +228,12 @@ void setPanelState(Readings state) {
   bool machineEnd = (state.a1 > 300) ? true : false;
   bool doorLock = (state.a0 > 1000) ? true : false;
 
-  //  how many panel lights are on ?
-  int count = 0;
-
-  if (wash) {
-
-    count++;
-  }
-
-  if (rinse) {
-
-    count++;
-  }
-
-  if (spin) {
-
-    count++;
-  }
-
-  if (empty) {
-
-    count++;
-  }
-
+  /*
+    Cycle is ended when the door lock is off when we were in a washing state
+    also the machine end light has gone on
+  */
   //  Wash cycle has ended
-  if (IsWashing && !doorLock) {
+  if (IsWashing && !doorLock && machineEnd) {
 
     if (currentWash.cycleStarted > 0) {
 
@@ -279,6 +261,7 @@ void setPanelState(Readings state) {
     }
 
     washingFinished = millis();
+
     publishMessage(WASH_ENDED, true);
     IsWashing = false;
     return;

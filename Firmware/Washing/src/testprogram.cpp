@@ -112,8 +112,8 @@ Readings loadTestPinState() {
     readings.a4 = 0;
     readings.a3 = 1;
     readings.a2 = 8;
-    readings.a1 = 0;
-    readings.a0 = 209;
+    readings.a1 = 500;
+    readings.a0 = 0;
 
     runTestProgram = false;
     lastEvent = 0;
