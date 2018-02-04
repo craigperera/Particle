@@ -19,28 +19,27 @@ const int SPINNING = 4;
 const int EMPTYING = 5;
 
 typedef struct {
-    int a5;
-    int a4;
-    int a3;
-    int a2;
-    int a1;
-    int a0;
-    bool unset;
+  int a5;
+  int a4;
+  int a3;
+  int a2;
+  int a1;
+  int a0;
+  bool unset;
 } Readings;
 
 typedef struct {
 
-    long cycleStarted;
-    long washStarted;
-    long washEnded;
-    long rinseStarted;
-    long rinseEnded;
-    long spinStarted;
-    long spinEnded;
-    long pumpoutStarted;
-    long pumpoutEnded;
-    long cycleEnded;
-
+  long cycleStarted;
+  long washStarted;
+  long washEnded;
+  long rinseStarted;
+  long rinseEnded;
+  long spinStarted;
+  long spinEnded;
+  long pumpoutStarted;
+  long pumpoutEnded;
+  long cycleEnded;
 } WashTimings;
 
 extern long lastNotified;

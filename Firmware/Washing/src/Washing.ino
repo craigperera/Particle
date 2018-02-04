@@ -6,10 +6,10 @@ int lastSent;
 
 void setup() {
 
-    initialise();
+  initialise();
 }
 
 void loop() {
 
-    checkLoop();
+  checkLoop();
 }
