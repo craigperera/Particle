@@ -228,12 +228,34 @@ void setPanelState(Readings state) {
   bool machineEnd = (state.a1 > 300) ? true : false;
   bool doorLock = (state.a0 > 1000) ? true : false;
 
+  //  how many panel lights are on ?
+  int count = 0;
+
+  if (wash) {
+
+      count++;
+  }
+
+  if (rinse) {
+
+      count++;
+  }
+
+  if (spin) {
+
+      count++;
+  }
+
+  if (empty) {
+
+      count++;
+  }
+
   /*
     Cycle is ended when the door lock is off when we were in a washing state
     also the machine end light has gone on
   */
-  //  Wash cycle has ended
-  if (IsWashing && !doorLock && machineEnd) {
+  if (IsWashing && !doorLock && machineEnd && count == 0) {
 
     if (currentWash.cycleStarted > 0) {
 
@@ -288,7 +310,7 @@ void setPanelState(Readings state) {
   }
 
   //  Machine is currently Washing
-  if (wash && doorLock) {
+  if (wash && doorLock && count == 1) {
 
     if (currentWash.cycleStarted > 0 && currentWash.cycleEnded > 0) {
 
@@ -312,7 +334,7 @@ void setPanelState(Readings state) {
   }
 
   //  Machine is currently Rinsing
-  if (rinse && doorLock) {
+  if (rinse && doorLock && count == 1) {
 
     if (currentWash.cycleStarted > 0 && currentWash.cycleEnded > 0) {
 
@@ -341,7 +363,7 @@ void setPanelState(Readings state) {
   }
 
   //  Machine is currently Rinsing
-  if (spin && doorLock) {
+  if (spin && doorLock && count == 1) {
 
     if (currentWash.cycleStarted > 0 && currentWash.cycleEnded > 0) {
 
@@ -375,7 +397,7 @@ void setPanelState(Readings state) {
   }
 
   //  Machine is currently Rinsing
-  if (empty && doorLock) {
+  if (empty && doorLock && count == 1) {
 
     if (currentWash.cycleStarted > 0 && currentWash.cycleEnded > 0) {
 
