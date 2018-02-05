@@ -292,7 +292,7 @@ void setPanelState(Readings state) {
   //  if machine is off, or not running then no further action required
   if (!wash && !rinse && !spin && !empty) {
 
-    if (washStatus == WASH_ENDED) {
+    if (washStatus == WASH_ENDED || lastMessageSent.endsWith("1@")) {
 
       IsWashing = false;
 
@@ -303,6 +303,7 @@ void setPanelState(Readings state) {
 
         washingFinished = 0;
         washStatus = READY;
+        publishMessage(READY, false);
       }
     }
 
