@@ -618,7 +618,13 @@ void setGoogleData() {
 */
 void publishStateListener(const char *event, const char *data) {
 
-  delay(1000);
+  String str = String(data);
+
+  if (str.toLowerCase().trim() != "i") {
+
+    delay(1000);
+  }
+
   String msg = String::format("%d;%s;%s;%s@tmp=%.1f", indexer, version.c_str(), localIp.c_str(), lastStatus.c_str(), currentTemp);
   Particle.publish("evt_change", msg, 10, PRIVATE);
 }

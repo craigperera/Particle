@@ -495,7 +495,13 @@ void publishMessage(int machineState, bool endWashNotification) {
 */
 void publishStateListener(const char *event, const char *data) {
 
-  delay(1500);
+  String str = String(data);
+
+  if (str.toLowerCase().trim() != "i") {
+
+    delay(1500);
+  }
+
   String msg = String::format("%d;%s;%s;%s", indexer, version.c_str(), localIp.c_str(), lastMessageSent.c_str());
   Particle.publish("evt_change", msg, 10, PRIVATE);
 }
