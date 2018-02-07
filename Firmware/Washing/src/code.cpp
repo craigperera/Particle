@@ -495,12 +495,7 @@ void publishMessage(int machineState, bool endWashNotification) {
 */
 void publishStateListener(const char *event, const char *data) {
 
-  String str = String(data);
-
-  if (str.toLowerCase().trim() != "i") {
-
-    delay(1500);
-  }
+  delay(1500);
 
   String msg = String::format("%d;%s;%s;%s", indexer, version.c_str(), localIp.c_str(), lastMessageSent.c_str());
   Particle.publish("evt_change", msg, 10, PRIVATE);
@@ -541,8 +536,6 @@ int receiveMessage(String message) {
 
     //  save state
     EEPROM.put(0, currentWash);
-
-    Particle.publish("RESTARTING");
 
     //  allow message to be sent
     delay(2000);
